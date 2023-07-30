@@ -137,19 +137,19 @@ def mqtt_single_out(topic, data, retain=False):
 
 
 def mqtt_iterator(result, base=''):
-    for key in result.keys():
-        if type(result[key]) == dict:
-            mqtt_iterator(result[key], f'{base}/{key}')
+    for key, value in result.items():
+        if isinstance(value, dict):
+            mqtt_iterator(value, f'{base}/{key}')
         else:
             if args.mqtt_hass:
                 logger.debug('Sending out hass discovery message')
                 topic, output = build_mqtt_hass_config_discovery(f'{base}/{key}')
                 mqtt_single_out(topic, output, retain=True)
 
-            if type(result[key]) == list:
-                val = json.dumps(result[key])
+            if isinstance(value, list):
+                val = json.dumps(value)
             else:
-                val = result[key]
+                val = str(value)
 
             mqtt_single_out(f'{args.mqtt_topic}{base}/{key}', val)
 
